@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Highest Scores Line Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="{% static 'js/script.js' %}"></script>
+    <style>
+        h2 {
+            text-align: center;
+            margin-top:20px;
+            color: #0066b2
+        }
+        #home-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007BFF; 
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 20px auto;
+            transition: background-color 0.3s ease; 
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="main-heading">Highest Monthly Test Scores</h1>
+    <form method="GET">
+        <label for="year" style="margin-left:600px">Select Year:</label>
+        <select name="year" id="year" onchange="this.form.submit()">
+            {% for year in years %}
+                <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>{{ year }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    <canvas id="line-chart" width="1000" height="500" style="margin:20px auto"></canvas>
+
+    
+    <div class="button-container">          
+        <a id="home-button" href="{% url 'home' %}">Back to HomePage</a>
+        <button id="graph-info-btn">Show Graph Info</button> 
+    </div>     
+
+    <div class="graph-info-modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Highest Monthly Test Scores</h2>
+            <p>This line graph shows the highest monthly candidate test scores across all provinces in a particular year.
+                The filtered raw data is shown in the table below the graph.
+            </p>
+        </div>
+    </div>
+
+    <h2>Filtered Candidate Scores</h2>
+    <table style="margin: auto;border-spacing: 25px 6px; width:30%">
+       <thead>
+           <tr>
+               <th>Candidate</th>
+               <th>Score</th>
+               <th>Scoring Date</th>
+               <th>Province</th>
+           </tr>
+       </thead>
+       <tbody>
+           {% for row in table_data %}
+               <tr>
+                   <td>{{ row.candidate }}</td>
+                   <td>{{ row.score }}</td>
+                   <td>{{ row.scoring_date }}</td>
+                   <td>{{ row.province }}</td>
+               </tr>
+           {% endfor %}
+       </tbody>
+   </table>
+
+    <script>   
+        var ctx = document.getElementById('line-chart').getContext('2d');
+        var chartData = JSON.parse('{{ chart_data|escapejs }}');
+        
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.months,
+                datasets: [{
+                    label: 'Highest Monthly Scores',
+                    data: chartData.scores,
+                    borderColor: '#2c3968',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 2
+                }]
+            },
+        });
+    </script>  
+</body>
+</html>

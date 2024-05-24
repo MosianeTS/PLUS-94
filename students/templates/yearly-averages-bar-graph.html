@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Yearly Averages Bar Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="{% static 'js/script.js' %}"></script>
+    <style>
+      #home-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007BFF; 
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 20px auto;
+            transition: background-color 0.3s ease; 
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="main-heading">Test Scores Yearly Averages</h1>
+    <canvas id="yearly-averages-chart" width="1000" height="500" style="margin: 20px auto"></canvas>
+
+    <div class="button-container">          
+        <a id="home-button" href="{% url 'home' %}">Back to HomePage</a>
+        <button id="graph-info-btn">Show Graph Info</button> 
+    </div> 
+
+    <div class="graph-info-modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Test Scores Yearly Averages</h2>
+            <p>This bar graph shows the average candidate test scores for all provinces for 2020 and 2021.</p>
+        </div>
+    </div>
+
+    <script>      
+        document.addEventListener('DOMContentLoaded', function() {
+            const chartData = JSON.parse('{{ chart_data|escapejs }}');
+
+            const ctx = document.getElementById('yearly-averages-chart').getContext('2d');
+            const config = {
+                type: 'bar',
+                data: {
+                    labels: chartData.years,
+                    datasets: [{
+                        label: 'Yearly Averages',
+                        data: chartData.averages,
+                        borderColor: '#2c3968',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            };
+            const yearlyAveragesChart = new Chart(ctx, config);
+        });
+    </script>
+</body>
+</html>

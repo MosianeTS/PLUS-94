@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Monthly Averages Bar Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="{% static 'js/script.js' %}"></script>
+    <style> 
+        select#province {
+            padding: 8px;            
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            appearance: none; 
+            -webkit-appearance: none; 
+            -moz-appearance: none; 
+            cursor: pointer;
+            width: 150px; 
+        }  
+    
+        h2 {
+            text-align: center;
+            margin-top:20px;
+            color: #0066b2
+        }
+        #home-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007BFF; 
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 20px auto;
+            transition: background-color 0.3s ease; 
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <form method="get" action="">
+        <h1 id="main-heading">Test Scores Monthly Averages</h1>
+        <label for="year" style="margin-left: 500px;">Year:</label>
+        <select id="year" name="year" onchange="this.form.submit()">
+            <option value="2020" {% if selected_year == '2020' %}selected{% endif %}>2020</option>
+            <option value="2021" {% if selected_year == '2021' %}selected{% endif %}>2021</option>
+        </select>
+
+        <label for="province" style="margin-left: 50px">Province:</label>
+        <select id="province" name="province" onchange="this.form.submit()">
+            <option value="GP" {% if selected_province == 'GP' %}selected{% endif %}>GP</option>
+            <option value="LP" {% if selected_province == 'LP' %}selected{% endif %}>LP</option>
+            <option value="NW" {% if selected_province == 'NW' %}selected{% endif %}>NW</option>
+            <option value="WC" {% if selected_province == 'WC' %}selected{% endif %}>WC</option>
+            <option value="EC" {% if selected_province == 'EC' %}selected{% endif %}>EC</option>
+            <option value="FS" {% if selected_province == 'FS' %}selected{% endif %}>FS</option>
+            <option value="MP" {% if selected_province == 'MP' %}selected{% endif %}>MP</option>
+            <option value="NC" {% if selected_province == 'NC' %}selected{% endif %}>NC</option>
+            <option value="KZN" {% if selected_province == 'KZN' %}selected{% endif %}>KZN</option>
+           
+        </select>
+    </form>
+
+    <canvas id="bar-chart" width="1000" height="500" style="margin:20px auto"></canvas>
+
+    <div class="button-container">          
+        <a id="home-button" href="{% url 'home' %}">Back to HomePage</a>
+        <button id="graph-info-btn">Show Graph Info</button> 
+    </div>     
+
+    <div class="graph-info-modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Test Scores Monthly Averages</h2>
+            <p>This bar graph shows the monthly average test scores for candidates of a particular province in a particular year.
+                The filtered raw data is shown in the table below the graph.
+            </p>
+        </div>
+    </div>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {   
+
+            const chartData = JSON.parse('{{ chart_data|escapejs }}'); 
+
+            const ctx = document.getElementById('bar-chart').getContext('2d');
+            const config = {
+                type: 'bar',
+                data: {
+                    labels: chartData.months,
+                    datasets: [{
+                        label: 'Monthly Averages',
+                        data: chartData.averages,
+                        borderColor: '#2c3968',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            };
+            const barChart = new Chart(ctx, config);
+        });
+    </script>
+
+    <h2>Filtered Candidate Scores</h2>
+    <table style="margin: auto;border-spacing: 22px 8px; width:25%">
+        <thead>
+            <tr>
+                <th>Candidate</th>
+                <th>Score</th>
+                <th>Scoring Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for candidate in candidates %}
+                <tr>
+                    <td>{{ candidate.candidate }}</td>
+                    <td>{{ candidate.score }}</td>
+                    <td>{{ candidate.scoring_date }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Averages Line Graph</title>    
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+    <script src="{% static 'js/script.js' %}"></script>
+    <style>
+        h2 {
+            text-align: center;
+            margin-top:20px;
+            color: #0066b2
+        }
+        #home-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007BFF; 
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 20px auto;
+            transition: background-color 0.3s ease; 
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="main-heading">Test Scores Monthly Averages</h1>
+    <label for="year" style="margin-left: 600px">Select Year:</label>
+
+    <select id="year" onchange="updateChart()">
+        <option value="2020">2020</option>
+        <option value="2021">2021</option>
+    </select>
+
+    <canvas id="lineChart" ></canvas>
+
+    <div class="button-container">          
+        <a id="home-button" href="{% url 'home' %}">Back to HomePage</a>
+        <button id="graph-info-btn">Show Graph Info</button> 
+    </div>    
+
+    <div class="graph-info-modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Test Scores Monthly Averages</h2>
+            <p>This line graph shows the average monthly candidate test scores for a particular year.
+                You can filter the data by year and choose between years 2020 and 2021.
+                The filtered raw data for a chosen year is shown in the table below the graph.
+            </p>
+        </div>
+    </div>
+
+    <h2>Filtered Candidate Scores</h2>   
+
+    <table id="dataTable" style="margin: auto;border-spacing: 30px 8px; width:25% ">
+        <thead>
+            <tr>
+                <th>Candidate</th>
+                <th>Score</th>
+                <th>Scoring Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+    </table>
+    <script>
+        var data = JSON.parse('{{ candidates|safe }}');    
+
+        function updateChart() {
+            var selectedYear = document.getElementById("year").value;
+            var filteredData = data.filter(item => item.scoring_date.startsWith(selectedYear));
+            var monthlyAverages = calculateMonthlyAverages(filteredData);
+            renderChart(monthlyAverages);
+            renderDataTable(filteredData);
+        }
+
+        function calculateMonthlyAverages(data) {
+            var monthlyAverages = Array.from({ length: 12 }, () => 0);
+            var monthlyCounts = Array.from({ length: 12 }, () => 0);
+
+            data.forEach(item => {
+                var month = new Date(item.scoring_date).getMonth();
+                monthlyAverages[month] += item.score;
+                monthlyCounts[month]++;
+            });
+
+            monthlyAverages = monthlyAverages.map((sum, index) => {
+                if (monthlyCounts[index] !== 0) {
+                    return sum / monthlyCounts[index];
+                } else {
+                    return 0;
+                }
+            });
+
+            return monthlyAverages;
+        }
+
+        function renderChart(monthlyAverages) {
+            var ctx = document.getElementById("lineChart").getContext("2d");
+            if (window.myChart) {
+                window.myChart.destroy();
+            }
+            window.myChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+                    datasets: [{
+                        label: "Monthly Averages",
+                        data: monthlyAverages,
+                        backgroundColor: "rgba(54, 162, 235, 0.2)",
+                        borderColor: "#2c3968",
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderDataTable(data) {
+            var tableBody = document.getElementById("dataTable").querySelector("tbody");
+            tableBody.innerHTML = "";
+            data.forEach(item => {
+                var row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.candidate}</td>
+                    <td>${item.score}</td>
+                    <td>${item.scoring_date}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+       
+        updateChart();
+    </script>
+</body>
+</html>

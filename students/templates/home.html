@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Report</title>    
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style> 
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;            
+            height: 100vh;
+            background-color: #f5f5f5;
+            text-align: center;
+        }
+
+        .nav-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .nav-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .nav-button {
+            display: inline-block;
+            padding: 15px 25px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background-color: #0056b3;
+        }
+
+       
+    </style>
+</head>
+<body>
+    <div style="background-color: black;">
+        <img src="{% static 'img/Plus 94 logo.png' %}" alt="">
+    </div>
+    
+    <h1 style="margin-top:50px">Welcome to your dashboards page</h1>
+    <h2 style="margin:35px 0px">A visual representation of candidate test scores data</h2>
+    <p style="margin:45px 0px">This is a dashboard page which depicts various graphs based on a
+         dataset of test scores.<br> The dataset consisted of test scores for 100 candidates from 9 South African provinces. 
+         <br>Each score is taken out of a possible 10 points.
+         
+
+    </p>
+    <p style="margin:45px 0px">Click on any button below to see any desired graph</p>
+
+    <div class="nav-container">
+        <div class="nav-row">
+            <a class="nav-button" href="{% url 'monthly-averages-line' %}">Monthly Averages Line Graph</a>
+            <a class="nav-button" href="{% url 'monthly-averages-bar' %}">Monthly Averages Bar Graph</a>
+        </div>
+        <div class="nav-row">
+            <a class="nav-button" href="{% url 'yearly-averages' %}">Yearly Averages Bar Graph</a>
+            <a class="nav-button" href="{% url 'monthly-scores' %}">Total Monthly Scores Line Graph</a>
+            <a class="nav-button" href="{% url 'highest-scores' %}">Monthly Highest Scores Line Graph</a>
+        </div>
+    </div> 
+    
+    <div style="background-color: black; margin-top: 50px">
+        <img src="{% static 'img/Plus 94 logo.png' %}" alt="">
+    </div>
+</body>
+</html>
